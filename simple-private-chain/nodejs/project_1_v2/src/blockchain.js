@@ -68,13 +68,23 @@ class Blockchain {
             block.time = new Date().getTime().toString().slice(0, -3);
 
             if (self.chain.length > 0) {
-                block.previousblockhash = self.chain[self.chain.length-1].hash;
+                block.previousBlockHash = self.chain[self.chain.length-1].hash;
             }
 
             block.hash = SHA256(JSON.stringify(block)).toString();
+
             self.chain.push(block);
             self.chain.height += 1;
-            resolve(self.chain[self.chain.length-1]);
+
+            let validateChainStatus = await self.validateChain();
+
+            if (validateChainStatus == true) {
+                resolve(self.chain[self.chain.length-1]);
+            } else {
+                self.chain.pop();
+                reject({error: "validation of chain failed"})
+            }
+            
         });
     }
 
@@ -115,8 +125,13 @@ class Blockchain {
             let request_time = parseInt(message.split(':')[1]);
             let currentTime = parseInt(new Date().getTime().toString().slice(0, -3));
            
-            if (currentTime - request_time < 300) {
-                let ver = bitcoinMessage.verify(message, address, signature);
+            if ((currentTime >= request_time) && (currentTime - request_time < 300)) {
+                let ver = false;
+                try {
+                    ver = bitcoinMessage.verify(message, address, signature);
+                } catch (error) {
+                    reject({error: "verification failed"})
+                }
                 if (ver == true) {
                     await this._addBlock(new BlockClass.Block({data: JSON.stringify({
                         owner: address,
@@ -125,14 +140,12 @@ class Blockchain {
                         star: star}
                     )}));   
                     resolve (self.chain[self.chain.length-1]);
-                } else {
-                    reject("verification failed");
-                }
+                } 
             } else {
-                reject("Time > 5 mins");
+                reject({error: "Time > 5 mins"});
             }
             
-        });
+        }); 
     }
 
     /**
@@ -182,7 +195,7 @@ class Blockchain {
 
         return new Promise((resolve, reject) => {
             self.chain.forEach(element => {
-                if (element.previousblockhash != null ) {
+                if (element.previousBlockHash != null ) {
                     let block_data = element.getBData();
                     block_data = JSON.parse(block_data.data);
 
@@ -204,17 +217,17 @@ class Blockchain {
     validateChain() {
         let self = this;
         let errorLog = [];
+
         return new Promise(async (resolve, reject) => {
             for (let x = 1; x < self.chain.length; x++) {
                 let b = self.chain[x];
                 let result = await b.validate();
 
-                if (result == false || b.previousblockhash != self.chain[x-1].hash) {
+                if (result == false || b.previousBlockHash != self.chain[x-1].hash) {
                     reject(false);
-                } else {
-                    resolve(true)
-                }
+                } 
             }
+            resolve(true)
         });
     }
 

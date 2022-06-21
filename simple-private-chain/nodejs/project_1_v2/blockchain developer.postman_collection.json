@@ -1,0 +1,120 @@
+{
+	"info": {
+		"_postman_id": "0f901e69-3ba4-403f-8e5d-edaa371d4dc1",
+		"name": "blockchain developer",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get height",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8000/block/height/0",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"block",
+						"height",
+						"0"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "requestValidation",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"address\": \"n2cGXzQ7qX2Qxx2Zs6P7cfw5GvrBNqTQyP\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8000/requestValidation",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"requestValidation"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "submitstar",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"address\": \"n2cGXzQ7qX2Qxx2Zs6P7cfw5GvrBNqTQyP\",\n    \"signature\": \"IBDxQs69FY0G13ucAsO2oh9I3hXc1IwhUOjH/vDObns6UTsCoCoxsd9gH5/wlZSegJ4nz9XhdcEKjCpiO4qxi30=\",\n    \"message\": \"n2cGXzQ7qX2Qxx2Zs6P7cfw5GvrBNqTQyP:1655821876:starRegistry\",\n    \"star\": {\n        \"dec\": \"69' 1001'\",\n        \"ra\": \"16h 32m 00\",\n        \"story\": \"story of the star\"\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8000/submitstar",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"submitstar"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get owner assets",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8000/blocks/n2cGXzQ7qX2Qxx2Zs6P7cfw5GvrBNqTQyP",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"blocks",
+						"n2cGXzQ7qX2Qxx2Zs6P7cfw5GvrBNqTQyP"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "validateChain",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8000/validateChain",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"validateChain"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

@@ -14,6 +14,7 @@ class BlockchainController {
         this.getBlockByHeight();
         this.requestOwnership();
         this.submitStar();
+        this.validateBlockChain();
         this.getBlockByHash();
         this.getStarsByOwner();
     }
@@ -73,6 +74,17 @@ class BlockchainController {
                 }
             } else {
                 return res.status(500).send("Check the Body Parameter!");
+            }
+        });
+    }
+
+    validateBlockChain() {
+        this.app.get("/validateChain", async (req, res) => {
+            let block = await this.blockchain.validateChain();
+            if(block){
+                return res.status(200).send();
+            } else {
+                return res.status(404).send({error: "chain validation failed"});
             }
         });
     }
