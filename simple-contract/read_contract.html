@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Contract - Interact with metamask and call methods</title>
+
+    <link rel="stylesheet" type="text/css" href="main.css">
+
+    <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js/dist/web3.min.js"></script>
+</head>
+
+<body>
+    <div>
+        <h1>Contract - Interact with metamask and call methods</h1>
+        <p></p>
+        <text>Current value in contract </text>
+        <text id="contract_message"></text>
+        <p></p>
+        <input id="set_msg"></input>
+        <button onclick="sendMessage()">Send message</button>
+    </div>
+
+    <script>
+
+        // Connect a the web3 provider
+        if (typeof web3 !== 'undefined') {
+            web3 = new Web3(web3.currentProvider);
+        } else {
+            web3 = new Web3(new Web3.providers.HttpProvider("https://goerli.infura.io/v3/f45016f587544f2eb8727ce73d8f2f99"));
+        }
+
+        // Set a default account
+        const abi = [{"constant":false,"inputs":[{"name":"x","type":"string"}],"name":"setMessage","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"getMessage","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"}];
+        var contract_address = '0x3d1C0f904DA130366D636b1239abE2E012056349';
+  
+        if (typeof window.ethereum !== 'undefined') {
+            console.log('MetaMask is installed!');
+        }
+
+        async function interact_with_ethereum() {
+            const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+            const account = accounts[0];
+        }
+
+        // If interaction with etherum is needed.
+        // interact_with_ethereum();
+
+        console.log('selected address =', ethereum.selectedAddress);
+
+        // Get the contract address
+        var RemixContract = new web3.eth.Contract(abi, contract_address, {from: ethereum.selectedAddress});
+        
+        // Get the contract abi
+        RemixContract.methods.getMessage().call().then(m => {
+            document.getElementById('contract_message').innerHTML = m;
+        });
+        
+        function sendMessage() {
+            let msg = document.getElementById('set_msg').value;
+            
+            console.log(msg);
+            RemixContract.methods.setMessage(msg).send({from: web3.eth.defaultAccount}).then(m => {
+                console.log('contract value set', m)
+                // Get the contract abi 
+                RemixContract.methods.getMessage().call().then(m => {
+                    document.getElementById('contract_message').innerHTML = 'Upated : ' + m;
+                });                
+            })
+
+        }
+    </script>
+</body>
+
+</html>

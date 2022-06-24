@@ -16,7 +16,7 @@ web3_infura.eth.getAccounts().then(accounts => {
 });
 
 let raw_transaction = {
-    nonce: 2,
+    nonce: 4,
     to: recv_addr,
     gasPrice: 20000000,
     gasLimit: 30000,
@@ -32,3 +32,8 @@ transaction.sign(pvt_key_buffer);
 
 var serializedTransaction = transaction.serialize(); 
 web3_infura.eth.sendSignedTransaction(serializedTransaction);
+
+web3_infura.eth.getGasPrice().then(gp => {
+    console.log('gas price =', gp);
+})
+
