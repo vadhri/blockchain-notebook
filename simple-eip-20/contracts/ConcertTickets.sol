@@ -42,7 +42,10 @@ contract ConcertTickets {
     function transferFrom(address _from, address _to, uint256 _value) public returns (bool success) {
         require(_value <= balanceOf[_from], "not enough balance, revert gasleft");
         require(_value <= allowances[_from][msg.sender], "not enough approved balance, revert" );
+        
         balanceOf[_from] -= _value;
+        balanceOf[_to] += _value;
+        
         allowances[_from][msg.sender] -= _value;
 
         emit Transfer(_from, _to, _value);
