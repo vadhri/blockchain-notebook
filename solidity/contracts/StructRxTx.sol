@@ -11,6 +11,7 @@ contract StructRxTx {
     }
 
     mapping(bytes32 => Transaction) txregister;
+    string public tokenName = "MyToken";
 
     function registerTransaction(bytes32 id, address to, address from, uint256 value) public returns (bool){
         Transaction memory txobj;

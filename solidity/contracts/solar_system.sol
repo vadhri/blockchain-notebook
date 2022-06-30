@@ -18,7 +18,7 @@ contract SolarSystem {
         planetIndex["Uranus"] = Planets.Uranus;
     }  
 
-    function distanceFromSun(string memory _from, string memory _to) public view returns (uint256) {
+    function distance(string memory _from, string memory _to) public view returns (uint256) {
         return planetaryDistances[planetIndex[_from]][planetIndex[_to]];
     }
 

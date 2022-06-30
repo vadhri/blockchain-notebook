@@ -17,7 +17,7 @@ contract("strings", function(accounts) {
             ct = instance;
             return ct.setNameValue("Testing")
         }).then(receipt => {
-            return ct.getNameValue();
+            return ct.getNameValue.call();
         }).then(name => {
             assert.equal(name, "Testing")
         })

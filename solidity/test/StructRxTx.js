@@ -1,4 +1,4 @@
-var srxtx = artifacts.require("./StructRxTx");
+var srxtx = artifacts.require("StructRxTx");
 
 contract("StructRxTx", function (accounts) {
     let ct = null;
@@ -14,6 +14,9 @@ contract("StructRxTx", function (accounts) {
             return ct.getTransaction.call(web3.utils.fromUtf8("123456789"));
         }).then(result => {
             assert(result.value == 122, "Transaction is not correct one");
-        })
+            return ct.tokenName.call();
+        }).then(result => {
+            assert(result == "MyToken", "Name getter works !")
+        });
     });
 })
