@@ -1,1 +1,5 @@
 truffle-boxes/library/src/pets.json
+models/multiple-sellers-buyer-simple-transfer/node_modules/.package-lock.json
+models/multiple-sellers-buyer-simple-transfer/node_modules/.yarn-integrity
+models/multiple-sellers-buyer-simple-transfer/test/.gitkeep
+models/multiple-sellers-buyer-simple-transfer/yarn.lock
