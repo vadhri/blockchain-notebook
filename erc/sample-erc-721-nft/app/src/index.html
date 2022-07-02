@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>ArtGallery DApp</title>
+  </head>
+  <style>
+    input {
+      display: block;
+      margin-bottom: 12px;
+    }
+  </style>
+  <body>
+    <h1>ArtGallery Token DAPP</h1>
+
+  <hr>
+
+  <br>
+    <h1>Create an Art Item</h1>
+    <br><label for="name">Art Name:</label><input type="text" id="name"></input>
+    <br><label for="id">Art ID:</label><input type="text" id="id"></input>
+    <br><br><button id="createStar" onclick="App.createArtItem()">Create</button>
+    <br><br>
+    <br>
+
+    <span id="status"></span>
+
+    <br>
+    <script src="index.js"></script>
+  </body>
+</html>
