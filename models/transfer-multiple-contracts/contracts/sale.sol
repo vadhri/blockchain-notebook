@@ -62,9 +62,7 @@ contract Sale {
     function purchase(uint256 itemId) public payable returns (bool) {
         require(msg.value >= catalogue[itemId]);
         uint256 pendingPercent = 100;
-
         uint256 returnmoney = msg.value - catalogue[itemId];
-
         uint256 cost = catalogue[itemId];
         
         (bool success, bytes memory percent) = serviceTaxAddress.call(
