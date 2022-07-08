@@ -42,10 +42,20 @@ contract('SupplyChain', function(accounts) {
     console.log("Retailer: accounts[3] ", accounts[3])
     console.log("Consumer: accounts[4] ", accounts[4])
 
+    let supplyChain;
+
+    before(async () => {
+            supplyChain = await SupplyChain.deployed()
+
+        await supplyChain.addFarmer(originFarmerID, {from: ownerID});
+        await supplyChain.addDistributor(distributorID, {from: ownerID});
+        await supplyChain.addRetailer(retailerID, {from: ownerID});
+        await supplyChain.addConsumer(consumerID, {from: ownerID});   
+    })
+
     // 1st Test
     it("Testing smart contract function harvestItem() that allows a farmer to harvest coffee", async() => {
-        const supplyChain = await SupplyChain.deployed()
-        
+
         // Declare and Initialize a variable for event
         var eventEmitted = false;
         
@@ -76,8 +86,7 @@ contract('SupplyChain', function(accounts) {
 
     // 2nd Test
     it("Testing smart contract function processItem() that allows a farmer to process coffee", async() => {
-        const supplyChain = await SupplyChain.deployed()
-        
+
         // Declare and Initialize a variable for event
         var eventEmitted = false;
         
@@ -102,8 +111,7 @@ contract('SupplyChain', function(accounts) {
 
     // 3rd Test
     it("Testing smart contract function packItem() that allows a farmer to pack coffee", async() => {
-        const supplyChain = await SupplyChain.deployed()
-        
+
         // Declare and Initialize a variable for event
         var eventEmitted = false;
         
@@ -126,8 +134,7 @@ contract('SupplyChain', function(accounts) {
 
     // 4th Test
     it("Testing smart contract function sellItem() that allows a farmer to sell coffee", async() => {
-        const supplyChain = await SupplyChain.deployed()
-        
+     
         // Declare and Initialize a variable for event
         var eventEmitted = false;
         
@@ -149,8 +156,7 @@ contract('SupplyChain', function(accounts) {
 
     // 5th Test
     it("Testing smart contract function buyItem() that allows a distributor to buy coffee", async() => {
-        const supplyChain = await SupplyChain.deployed()
-        
+  
         // Declare and Initialize a variable for event
         var eventEmitted = false;
 
@@ -172,8 +178,7 @@ contract('SupplyChain', function(accounts) {
 
     // 6th Test
     it("Testing smart contract function shipItem() that allows a distributor to ship coffee", async() => {
-        const supplyChain = await SupplyChain.deployed()
-        
+      
         // Declare and Initialize a variable for event
         var eventEmitted = false;
         
@@ -194,7 +199,6 @@ contract('SupplyChain', function(accounts) {
 
     // 7th Test
     it("Testing smart contract function receiveItem() that allows a retailer to mark coffee received", async() => {
-        const supplyChain = await SupplyChain.deployed()
         
         // Declare and Initialize a variable for event
         var eventEmitted = false;
@@ -218,7 +222,6 @@ contract('SupplyChain', function(accounts) {
 
     // 8th Test
     it("Testing smart contract function purchaseItem() that allows a consumer to purchase coffee", async() => {
-        const supplyChain = await SupplyChain.deployed()
         
         // Declare and Initialize a variable for event
         var eventEmitted = false;
@@ -230,7 +233,7 @@ contract('SupplyChain', function(accounts) {
         
 
         // Mark an item as Sold by calling function buyItem()
-        await supplyChain.purchaseItem(upc, {from: retailerID});        
+        await supplyChain.purchaseItem(upc, {from: consumerID});        
         
         // Retrieve the just now saved item from blockchain by calling function fetchItem()
         const resultBufferTwo = await supplyChain.fetchItemBufferTwo.call(upc)        
@@ -242,7 +245,6 @@ contract('SupplyChain', function(accounts) {
 
     // 9th Test
     it("Testing smart contract function fetchItemBufferOne() that allows anyone to fetch item details from blockchain", async() => {
-        const supplyChain = await SupplyChain.deployed()
 
         // Retrieve the just now saved item from blockchain by calling function fetchItem()
         const resultBufferOne = await supplyChain.fetchItemBufferOne.call(upc, {from: accounts[9]})        
@@ -254,7 +256,6 @@ contract('SupplyChain', function(accounts) {
 
     // 10th Test
     it("Testing smart contract function fetchItemBufferTwo() that allows anyone to fetch item details from blockchain", async() => {
-        const supplyChain = await SupplyChain.deployed()
 
         // Retrieve the just now saved item from blockchain by calling function fetchItem()
         const resultBufferTwo = await supplyChain.fetchItemBufferTwo.call(upc, {from: accounts[9]})        
