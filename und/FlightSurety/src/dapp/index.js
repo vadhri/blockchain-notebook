@@ -11,36 +11,101 @@ import './flightsurety.css';
     let contract = new Contract('localhost', () => {
 
         // Read transaction
-        contract.isOperational((error, result) => {
-            console.log(error, result);
-            
-            display('display-wrapper-operational', 'Operational Status', 'Check if contract is operational', [{ label: 'Operational Status', error: error, value: result }]);
+        contract.isOperational((error, result) => { 
+            display('display-wrapper-operational', 'Operational Status', 
+                'Check if contract is operational', 
+                [{ label: 'Operational Status', error: error, value: result }]);
         });
 
+        DOM.elid("withdraw-balance").addEventListener('click', () => {
+            contract.withdraw((error, result) => {
+                console.log(error, result);
+            })
+        })
+        
+        DOM.elid('check-balance').addEventListener('click', () => {
+            let flight = DOM.elid('passanger-flight').value;
+            let address = DOM.elid('passanger-address').value;
+            console.log(flight, address);
+
+            contract.checkBalance(flight, address, (error, result) => {
+                console.log(error, result);
+                if (error == false) {
+                    DOM.elid('display-wrapper-passenger-detail').value = result;
+                } else {
+                    DOM.elid('display-wrapper-passenger-detail').value = result;
+                }
+            });            
+        });
+
+        DOM.elid('fund-airline').addEventListener('click', () => {
+            let funds = DOM.elid('airline-value').value;
+            console.log(funds);
+            try {
+                contract.transferFunds(funds, (error, result) => {
+                    console.log(error, result);
+                    if (error == false) {
+                        DOM.elid('fstatus').value = result;
+                    } else {
+                        DOM.elid('fstatus').value = result;
+                    }
+                });
+            }
+            catch (error) {
+                displayTx('display-wrapper-register', [{ label: 'Airline not registered Tx', error: error, value: error.message }]);
+            }            
+        })
         DOM.elid('submit-airline').addEventListener('click', () => {
-            let airlineName = DOM.elid('airline-name').value;
             let airlineAddress = DOM.elid('airline-address').value;
-            console.log(airlineAddress);
-            contract.registerAirline(airlineName, airlineAddress, (error, result) => {
-                displayTx('display-wrapper-register', [{ label: 'Airline registered Tx', error: error, value: result }]);
-                DOM.elid('airline-name').value = "";
-                DOM.elid('airline-address').value = "";
-            });
+            let airlineName = DOM.elid('airline-name').value;
+            let success = false; 
+            let votes = 0;
+            
+            try {
+                contract.registerAirline(airlineName, airlineAddress, (error, result) => {
+                    console.log(error, result);
+                    if (error == false) {
+                        displayTx('display-wrapper-register', [{ label: 'Airline not registered Tx', value: result}]);
+                    } else {
+                        displayTx('display-wrapper-register', [{ label: 'Airline registered Tx', error: error, value: result }]);  
+                    }
+                    DOM.elid('airline-address').value = "";
+                });
+            }
+            catch (error) {
+                displayTx('display-wrapper-register', [{ label: 'Airline not registered Tx', error: error, value: error.message }]);
+            }
         })
 
+        DOM.elid('fetch-status').addEventListener('click', () => {
+            let airline = DOM.elid('airline-address-for-flight').value;
+            let flight = DOM.elid('airline-flight').value;
+            let timestamp = DOM.elid('airline-timestamp').value;
+            // Write transaction
+            contract.fetchFlightStatus(airline, flight, timestamp, (error, result) => {
+                console.log(result);
+                display("airline-status", 'Oracles', 'Trigger oracles', [ { label: 'Fetch Flight Status', error: error, value: result.flight + ' ' + result.timestamp} ]);
+            })
+        })
+        DOM.elid('submit-buy').addEventListener('click', () => {
+            let flight = DOM.elid('flight-number').value;
+            let insuredAmount = DOM.elid('insurance-amount').value;
+            // Write transaction
+            contract.buyInsurance(flight, insuredAmount, (error, result) => {
+                console.log(result);
+                display('Oracles', 'Trigger buy', [ { label: 'Fetch Flight Status', error: error, value: result.flight + ' ' + result.timestamp} ]);
+            });
+        })
         // User-submitted transaction
         DOM.elid('submit-oracle').addEventListener('click', () => {
             let flight = DOM.elid('flight-number').value;
             // Write transaction
             contract.fetchFlightStatus(flight, (error, result) => {
                 console.log(result);
-                display('Oracles', 'Trigger oracles', [ { label: 'Fetch Flight Status', error: error, value: result.flight + ' ' + result.timestamp} ]);
+                display("airline-status", 'Oracles', 'Trigger oracles', [ { label: 'Fetch Flight Status', error: error, value: result.flight + ' ' + result.timestamp} ]);
             });
         })
-    
     });
-    
-
 })();
 
 
@@ -61,7 +126,7 @@ function display(id, title, description, results) {
 
 function displayTx(id, results) {
     console.log(id, results);
-    
+
     let displayDiv = DOM.elid(id);
     results.map((result) => {
         let row = displayDiv.appendChild(DOM.div({ className: 'row' }));

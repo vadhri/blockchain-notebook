@@ -5,17 +5,40 @@ import "./SafeMath.sol";
 contract FlightSuretyData {
     using SafeMath for uint256;
 
+    struct airline {
+        uint256 funds;
+        bool isregistered;
+    }
+
+    struct passengerinfo {
+        uint256 insurance_bought;
+        uint256 creditedInsurance;
+    }
+
+    struct passenger {
+        mapping (string => passengerinfo) iten;
+        string[] flightList; 
+    }
+
     address private contractOwner;                                      
-    bool private operational = true;                              
+    bool private operational = true;       
+
     mapping (address => bool) authorizedCallers;
-    mapping (address => bool) airlines;
+
+    mapping (address => airline) airlines;
+    mapping (string => address) flightAndAirlineList;
+    mapping (string => address[]) flightAndPassengerList; 
+    
+    mapping (address => string[]) airlineToFlight;
+    mapping (address => passenger) passengerList;
+
     address[] airlinesdump;
 
     constructor()  {
         contractOwner = msg.sender;
         operational= true;
         authorizedCallers[msg.sender] = true;
-        airlines[msg.sender] = true;
+        airlines[msg.sender] = airline(0, true);
         
         airlinesdump.push(msg.sender);
     }
@@ -62,7 +85,7 @@ contract FlightSuretyData {
     }
 
     modifier registeredAirline() {
-        require(airlines[msg.sender] == true, "Not an authorized airline..");
+        require(airlines[msg.sender].isregistered == true, "Not an authorized airline..");
         _;
     }
 
@@ -80,34 +103,89 @@ contract FlightSuretyData {
     }
 
     function isAirline(address addr) public view authorizedCaller(msg.sender) returns (bool) {
-        return airlines[addr];
+        return airlines[addr].isregistered;
     }
 
     function addressDump() public view returns (address[] memory) {
         return airlinesdump;
     }
     
+    function flightDump(address _airline) public view returns (string[] memory) {
+        return airlineToFlight[_airline];
+    }
+
     function authorizeCaller(address _caller) public {
         authorizedCallers[_caller] = true;
     }
 
     function registerAirline(address addr, address from) public authorizedCaller(from) {
-        airlines[addr] = true;
+        airlines[addr] = airline(0, true);
         authorizedCallers[addr] = true;
         airlinesdump.push(addr);
     }
+    event InsuranceBought(uint256, uint256);
 
-    function buy() external payable {
-
+    function buyInsurance(string memory flight, address _passenger, uint256 insuredAmount) public payable {
+        passengerList[_passenger].iten[flight].insurance_bought = insuredAmount;
+        passengerList[_passenger].flightList.push(flight);
+        flightAndPassengerList[flight].push(_passenger);
+        emit InsuranceBought(insuredAmount, address(this).balance);
     }
 
-    function creditInsurees() external pure {
+    function isInsured(string memory flight, address _passenger) public view returns (bool) {
+        return passengerList[_passenger].iten[flight].insurance_bought > 0;
+    }
+
+    function registerFlight(address _airline, string memory flightName) public {
+        flightAndAirlineList[flightName] = _airline;
+        airlineToFlight[_airline].push(flightName);
+    }
+
+    function isRegisteredFlight(string memory flight) public view returns (bool) {
+        if (flightAndAirlineList[flight] == address(0)) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    event BalanceChangeNotification(address, string, uint256, uint256);
+
+    function creditInsurees(address airline, string memory flight) public {
+        for (uint256 i = 0; i < flightAndPassengerList[flight].length; i++ ) {
+            address _passenger = flightAndPassengerList[flight][i];
+            passengerList[_passenger].iten[flight].creditedInsurance += passengerList[_passenger].iten[flight].insurance_bought * 3 / 2;
+            emit BalanceChangeNotification(_passenger, flight, passengerList[_passenger].iten[flight].insurance_bought, passengerList[_passenger].iten[flight].creditedInsurance);
+            passengerList[_passenger].iten[flight].insurance_bought = 0;
+        }
     }
     
-    function pay() external pure {
+    event FundsTransferred(address, uint256, uint256);
+    
+    function withdraw(address _passenger) public payable returns (uint256) {
+        uint256 totalMoney = 0;
+
+        for (uint256 i = 0; i < passengerList[_passenger].flightList.length; i++) {
+            uint256 money = passengerList[_passenger].iten[passengerList[_passenger].flightList[i]].creditedInsurance;
+            if (money > 0) {
+                totalMoney += money;
+            }
+            passengerList[_passenger].iten[passengerList[_passenger].flightList[i]].creditedInsurance = 0;
+        }
+
+        payable(_passenger).transfer(totalMoney);
+        emit FundsTransferred(_passenger, totalMoney, address(_passenger).balance);
+        return totalMoney;
+    }
+    
+    function fund(address _airline, uint256 value) public payable {
+        airlines[_airline].funds += value;
+        emit FundsTransferred(_airline, value, address(this).balance);
     }
 
-    function fund() public payable {
+    function getPassengerBalanceByFlightName(address _passenger, string memory flightName) public returns (uint256) {
+        emit BalanceChangeNotification(_passenger, flightName, passengerList[_passenger].iten[flightName].insurance_bought, passengerList[_passenger].iten[flightName].creditedInsurance);
+        return passengerList[_passenger].iten[flightName].creditedInsurance;
     }
 
     function getFlightKey(address airline, string memory flight, uint256 timestamp) pure internal returns(bytes32) {
@@ -115,7 +193,7 @@ contract FlightSuretyData {
     }
 
     receive() external payable {
-        fund();
+        
     }
 }
 

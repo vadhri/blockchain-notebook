@@ -13,6 +13,8 @@ contract FlightSuretyApp {
     uint8 private constant STATUS_CODE_LATE_WEATHER = 30;
     uint8 private constant STATUS_CODE_LATE_TECHNICAL = 40;
     uint8 private constant STATUS_CODE_LATE_OTHER = 50;
+    
+    uint256 private constant MAX_INSURANCE_AMOUNT = 1 ether;
 
     address private contractOwner;          
     bool public operational  = false;
@@ -27,6 +29,10 @@ contract FlightSuretyApp {
         address airline;
     }
 
+    event AirlineRegistered(address);
+    event AirlineAlreadyRegistered(address);
+    event AirlineVoted(address, uint256);
+    
     mapping(bytes32 => Flight) private flights;
 
     modifier requireOperational() {
@@ -62,12 +68,17 @@ contract FlightSuretyApp {
             return (a+1)/2;
         }
     }
+
+    function isRegisteredAirline(address airline) public view returns (bool) {
+        return d.isAirline(airline);
+    }
     
     function registerAirline(address airline) public requireOperational returns(bool success, uint256 votes)  {
         require(d.isAirline(msg.sender), "Caller should be a registered airline");
 
         // check if the registration request is for an airline that already is registered.
         if (d.isAirline(airline) == true) {
+            emit AirlineAlreadyRegistered(airline);
             return (true, airlineCount);
         }
 
@@ -75,6 +86,7 @@ contract FlightSuretyApp {
         if (airlineCount < 4) {    
             d.registerAirline(airline, msg.sender);
             airlineCount += 1;
+            emit AirlineRegistered(airline);
             return (true, 1);
         } 
 
@@ -85,25 +97,59 @@ contract FlightSuretyApp {
         }
 
         airlineRegistrationVotes[airline].push(msg.sender);
+
         
         if ( airlineRegistrationVotes[airline].length == ceil(airlineCount)) {
             d.registerAirline(airline, msg.sender);
             airlineCount += 1;
+            emit AirlineRegistered(airline);
             return (true,  airlineRegistrationVotes[airline].length);
         } else {
+            emit AirlineVoted(airline, airlineRegistrationVotes[airline].length);
             return (false,  airlineRegistrationVotes[airline].length);
         }
+    }
+
+    function fundAirline() payable external requireOperational {
+        require(isRegisteredAirline(msg.sender), "The Airline to be funded is not registered");
+        d.fund(msg.sender, msg.value);
+        payable(address(d)).transfer(msg.value);
+    }
+
+    function buyInsurance(string memory flight) external payable requireOperational {
+        require(msg.value <= 1 ether, "Funds greater than allowed amount, 1 ether");
+        require(d.isRegisteredFlight(flight), "The flight to be funded is not registered");
+        payable(address(d)).transfer(msg.value);
+        d.buyInsurance(flight, msg.sender, msg.value);
+    } 
+
+    function getPassengerBalance(string memory flightName) public requireOperational returns (uint256) {
+        return d.getPassengerBalanceByFlightName(msg.sender, flightName);
+    }
+
+    function withDraw() public payable requireOperational returns (uint256) {
+        return d.withdraw(msg.sender);
     }
 
     function airlineVotes(address airline) public view returns (address[] memory) {
         return airlineRegistrationVotes[airline];
     }
 
-    function registerFlight() external pure {
-
+    // only registered airlines can register their own flights
+    function registerFlights(string[] memory flightNumber) public requireOperational {
+        require(isRegisteredAirline(msg.sender), "Not a registered airline");
+        for (uint i = 0; i < flightNumber.length; i++) {
+            d.registerFlight(msg.sender, flightNumber[i]);
+        }
     }
+    event creditInsureesNotification(address, string);
 
-    function processFlightStatus(address airline, string memory flight, uint256 timestamp, uint8 statusCode) internal pure {
+    function processFlightStatus(address airline, string memory flight, uint256 timestamp, uint8 statusCode) requireOperational internal {
+        if (statusCode == STATUS_CODE_LATE_AIRLINE) {
+            emit creditInsureesNotification(airline, flight);
+
+            d.creditInsurees(airline, flight);
+        }
     }
 
     function fetchFlightStatus (address airline, string memory flight, uint256 timestamp) external {
@@ -249,6 +295,10 @@ contract FlightSuretyApp {
         }
 
         return random;
+    }
+    event fundsReceived (address, uint256);
+    receive() external payable {
+        emit fundsReceived(msg.sender, msg.value);
     }
 
 // endregion

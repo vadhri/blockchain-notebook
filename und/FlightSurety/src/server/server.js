@@ -1,21 +1,25 @@
 import FlightSuretyApp from '../../build/contracts/FlightSuretyApp.json';
+import FlightSuretyData from '../../build/contracts/FlightSuretyData.json';
+
 import Config from './config.json';
 import Web3 from 'web3';
 import express from 'express';
-
 
 let config = Config['localhost'];
 
 let web3 = new Web3(new Web3.providers.WebsocketProvider(config.url.replace('http', 'ws')));
 let flightSuretyApp = new web3.eth.Contract(FlightSuretyApp.abi, config.appAddress);
+let flightSuretyData = new web3.eth.Contract(FlightSuretyData.abi, config.dataAddress);
 
 async function registerOracles() {
   const accounts = await web3.eth.getAccounts();
   const fee  = await flightSuretyApp.methods.getRegistrationFeeForOracle().call({from: accounts[0]});
 
-	for (const account of accounts) {
+	for (var i = 20; i < 30; i++) {
+		var account = accounts[i];
+
 		console.log('account=', account)
-		await flightSuretyApp.methods.registerOracle().send({
+			await flightSuretyApp.methods.registerOracle().send({
 			from: account,
 			value: fee,
 			gas: 6721900
@@ -26,7 +30,9 @@ async function registerOracles() {
 
 async function simulateOracleResponse(requestedIndex, airline, flight, timestamp) {
 	const accounts = await web3.eth.getAccounts();
-	for (const account of accounts) {
+	for (var i = 20; i < 30; i++) {
+		let account = accounts[i];
+
 		var indexes = await flightSuretyApp.methods.getMyIndexes().call({ from: account });
 		console.log("Oracles indexes: " + indexes + " for account: " + account);
 		for (const index of indexes) {
@@ -59,7 +65,22 @@ flightSuretyApp.events.OracleRequest({}).on('data', async (event, error) => {
 });
 
 flightSuretyApp.events.FlightStatusInfo({}).on('data', async (event, error) => {
-	console.log("event=", event);
+	console.log("event=", "FlightStatusInfo", event.returnValues[3]);
+	console.log("error=", error);
+});
+
+flightSuretyData.events.BalanceChangeNotification({}).on('data', async (event, error) => {
+	console.log("event=", event.returnValues);
+	console.log("error=", error);
+});
+
+flightSuretyApp.events.creditInsureesNotification({}).on('data', async (event, error) => {
+	console.log("event=", event.returnValues);
+	console.log("error=", error);
+});
+
+flightSuretyData.events.FundsTransferred({}).on('data', async (event, error) => {
+	console.log("event FundsTransferred=", event.returnValues);
 	console.log("error=", error);
 });
 
