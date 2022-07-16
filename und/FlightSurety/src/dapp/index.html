@@ -24,13 +24,16 @@
     </main>
 
     <main class="container">
-        <h2>Airline Registration</h2>
-        
+        <h2>#1 Airline Registration</h2>
+        <p>Use this method to register airlines (default airline will not have flights attached to them)</p>    
         <div class="row top-20">
-            <label class="form">Register Airlines</label>
+            <label style="font-size: 20px; text-decoration: underline;" class="form">1.1 Register Airlines</label>
         </div>
         <div class="row top-20">
             <input type="text" id="airline-address" style="width: 400px;" placeholder="Airline Address">
+        </div>
+        <div class="row top-20">
+            <p style="color: red"> Airline name will be attached as prefix to the default flights in dapp, to distinguish. For example, if the prefix is LH and flight name is DELBLR. use name below as LHDELBLR </p>
         </div>
         <div class="row top-20">
             <input type="text" id="airline-name" style="width: 400px;" placeholder="Airline Name">
@@ -38,7 +41,9 @@
         </div>
 
         <div class="row top-20">
-            <label class="form">Transfer funds to airline (self)</label>
+            <p style="font-size: 20px;text-decoration: underline;" class="form">1.2 Transfer funds to airline (self)</p>
+            <p style="color:white"> Funds to airlines will be transferred by the airline owner (or typically an investor who owns the airline but that address needs to transfer funds {not anyone}) </p>
+
         </div>
         <div class="row top-20">
                 <input type="text" id="airline-value" style="width: 400px;" placeholder="funds in wei.">
@@ -57,27 +62,9 @@
             </div>
         </div>
     </main>
-
-    <main class="container" class = "top-20">
-        <h2> Fetch flight status </h2>
-        <div class="row top-20">
-            <input type="text" id="airline-address-for-flight" style="width: 400px;" placeholder="Airline address">
-        </div>
-        <div class="row top-20">
-            <input type="text" id="airline-flight" style="width: 400px;" placeholder="Airline flight.">
-        </div>
-
-        <div class="row top-20">
-            <input type="text" id="airline-timestamp" style="width: 400px;" placeholder="Airline timestamp.">
-        </div>
-        <div class="row top-20">
-            <label id="airline-status" class="top-20"></label>
-            <btn class="btn btn-primary" id="fetch-status">Fetch status</btn>
-        </div>            
-    </main>
-
     <main class="container" class="top-20">
-        <h2>Insure Flight -> DELBLR, BLRHYD, HYDCHE, CHEGOA </h2>
+        <h2>#2 Insure Flight</h2>
+        <p>DELBLR, BLRHYD, HYDCHE, CHEGOA </p>
         
         <div class="row top-20">
             <input type="text" id="flight-number" placeholder="Flight Name (airlinename + flightname)" style="width: 400px;">
@@ -88,7 +75,6 @@
         </div>
         <div class="row top-20">
             <btn class="btn btn-primary" id="submit-buy">Buy</btn>
-            <btn class="btn btn-primary" id="submit-oracle" style="margin-left: 10px;">Fetch Flight Status</btn>
         </div>
 
         <div style="margin-top: 40px;">
@@ -99,8 +85,24 @@
         </div>
     </main>
 
+    <main class="container" class = "top-20">
+        <h2>#3 Fetch flight status </h2>
+        <div class="row top-20">
+            <input type="text" id="airline-address-for-flight" style="width: 400px;" placeholder="Airline address">
+        </div>
+        <div class="row top-20">
+            <input type="text" id="airline-flight" style="width: 400px;" placeholder="Airline flight.">
+        </div>
+
+        <div class="row top-20">
+            <label id="airline-status" class="top-20"></label>
+            <btn class="btn btn-primary" id="fetch-status">Fetch status</btn>
+        </div>            
+    </main>
+
+
     <main class="container" class="top-20">
-        <h2>Passenger Detail</h2>
+        <h2>#4 Passenger Detail</h2>
         <label class="form">Check Balance</label><p>
 
         <div class="row top-20">
@@ -111,15 +113,14 @@
         </div>
             
         <div class="row top-20">
-            <btn class="btn btn-primary" id="check-balance">Check Credit Pending to Withdraw</btn>
-            <btn class="btn btn-primary" id="withdraw-balance" style="margin-left: 10px;">Withdraw</btn>
+            <btn class="btn btn-primary" id="check-balance">Check Credit Pending per flight</btn>
+            <btn class="btn btn-primary" id="withdraw-balance" style="margin-left: 10px;">Withdraw All</btn>
         </div>
 
 
         <div style="margin-top: 40px;">
             <h5>Results:</h5>
             <div id="display-wrapper-passenger-detail">
-
             </div>
         </div>
     </main>

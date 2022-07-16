@@ -125,15 +125,19 @@ contract FlightSuretyData {
     }
     event InsuranceBought(uint256, uint256);
 
-    function buyInsurance(string memory flight, address _passenger, uint256 insuredAmount) public payable {
-        passengerList[_passenger].iten[flight].insurance_bought = insuredAmount;
+    function buyInsurance(string memory flight, address _passenger, uint256 _insuredAmount) public payable {
+        passengerList[_passenger].iten[flight].insurance_bought = _insuredAmount;
         passengerList[_passenger].flightList.push(flight);
         flightAndPassengerList[flight].push(_passenger);
-        emit InsuranceBought(insuredAmount, address(this).balance);
+        emit InsuranceBought(_insuredAmount, address(this).balance);
     }
 
     function isInsured(string memory flight, address _passenger) public view returns (bool) {
         return passengerList[_passenger].iten[flight].insurance_bought > 0;
+    }
+
+    function insuredAmount(string memory flight, address _passenger) public view returns (uint256) {
+        return passengerList[_passenger].iten[flight].insurance_bought;
     }
 
     function registerFlight(address _airline, string memory flightName) public {
@@ -151,7 +155,7 @@ contract FlightSuretyData {
 
     event BalanceChangeNotification(address, string, uint256, uint256);
 
-    function creditInsurees(address airline, string memory flight) public {
+    function creditInsurees(address _airline, string memory flight) public {
         for (uint256 i = 0; i < flightAndPassengerList[flight].length; i++ ) {
             address _passenger = flightAndPassengerList[flight][i];
             passengerList[_passenger].iten[flight].creditedInsurance += passengerList[_passenger].iten[flight].insurance_bought * 3 / 2;
@@ -188,7 +192,7 @@ contract FlightSuretyData {
         return passengerList[_passenger].iten[flightName].creditedInsurance;
     }
 
-    function getFlightKey(address airline, string memory flight, uint256 timestamp) pure internal returns(bytes32) {
+    function getFlightKey(address _airline, string memory flight, uint256 timestamp) pure internal returns(bytes32) {
         return keccak256(abi.encodePacked(airline, flight, timestamp));
     }
 

@@ -80,9 +80,8 @@ import './flightsurety.css';
         DOM.elid('fetch-status').addEventListener('click', () => {
             let airline = DOM.elid('airline-address-for-flight').value;
             let flight = DOM.elid('airline-flight').value;
-            let timestamp = DOM.elid('airline-timestamp').value;
             // Write transaction
-            contract.fetchFlightStatus(airline, flight, timestamp, (error, result) => {
+            contract.fetchFlightStatus(airline, flight, Date.now(), (error, result) => {
                 console.log(result);
                 display("airline-status", 'Oracles', 'Trigger oracles', [ { label: 'Fetch Flight Status', error: error, value: result.flight + ' ' + result.timestamp} ]);
             })
@@ -94,15 +93,6 @@ import './flightsurety.css';
             contract.buyInsurance(flight, insuredAmount, (error, result) => {
                 console.log(result);
                 display('Oracles', 'Trigger buy', [ { label: 'Fetch Flight Status', error: error, value: result.flight + ' ' + result.timestamp} ]);
-            });
-        })
-        // User-submitted transaction
-        DOM.elid('submit-oracle').addEventListener('click', () => {
-            let flight = DOM.elid('flight-number').value;
-            // Write transaction
-            contract.fetchFlightStatus(flight, (error, result) => {
-                console.log(result);
-                display("airline-status", 'Oracles', 'Trigger oracles', [ { label: 'Fetch Flight Status', error: error, value: result.flight + ' ' + result.timestamp} ]);
             });
         })
     });
