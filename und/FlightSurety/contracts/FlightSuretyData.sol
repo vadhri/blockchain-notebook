@@ -193,7 +193,7 @@ contract FlightSuretyData {
     }
 
     function getFlightKey(address _airline, string memory flight, uint256 timestamp) pure internal returns(bytes32) {
-        return keccak256(abi.encodePacked(airline, flight, timestamp));
+        return keccak256(abi.encodePacked(_airline, flight, timestamp));
     }
 
     receive() external payable {
