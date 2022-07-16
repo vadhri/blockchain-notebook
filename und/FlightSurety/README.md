@@ -11,11 +11,17 @@ The following commands in order worked well for me.
 
 ( use ganache gui and create 100 accounts, websockets are enabled in truffle config for events to be emitted, please use the right node version. )
 truffle compile
+
 truffle migrate --reset
+
 truffle test 
+
 ( All tests will pass. )
+
 npm run dapp
+
 npm run server
+
 
 For usage with dapp, please use metamask ( i connected metamask to the dapp ) and follow the steps with the following info ( three accounts : admin, airline, passenger). 
 
